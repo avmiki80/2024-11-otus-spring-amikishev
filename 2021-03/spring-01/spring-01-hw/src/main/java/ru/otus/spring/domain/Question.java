@@ -1,19 +1,19 @@
 package ru.otus.spring.domain;
 
 public class Question {
-    private String que;
-    private Integer answ;
+    private String question;
+    private String answer;
 
-    public String getQue() {
-        return que;
+    public String getQuestion() {
+        return question;
     }
 
-    public Integer getAnsw() {
-        return answ;
+    public String getAnswer() {
+        return answer;
     }
 
-    public Question(String que, Integer answ) {
-        this.que = que;
-        this.answ = answ;
+    public Question(String question, String answer) {
+        this.question = question;
+        this.answer = answer;
     }
 }

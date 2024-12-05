@@ -19,10 +19,9 @@ public class QuestionDaoImpl implements QuestionDao{
     public List<Question> findAll() {
         try {
             return Files.readAllLines(resource.getFile().toPath()).stream()
-                    .map(iter -> {
-                        String[] r = iter.split(";");
-                        return new Question(r[0], Integer.parseInt(r[1]));
-                    })
+                    .map(iter -> iter.split(";"))
+                    .filter(iter -> iter.length == 2)
+                    .map(iter -> new Question(iter[0], iter[1]))
                     .collect(Collectors.toList());
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -13,11 +13,11 @@ public class Main {
         ExaminatorService service = context.getBean(ExaminatorService.class);
 
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Имя: ");
+        System.out.print("Name: ");
         String name = scanner.nextLine().trim();
-        System.out.print("Фамилия: ");
+        System.out.print("Lastname: ");
         String lastname = scanner.nextLine().trim();
-        System.out.println("Результат " + name + " " + lastname + " = " + service.testing());
+        System.out.println("Result " + name + " " + lastname + " = " + service.testing());
         scanner.close();
     }
 }
