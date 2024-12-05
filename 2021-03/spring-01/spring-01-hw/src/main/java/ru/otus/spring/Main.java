@@ -18,5 +18,6 @@ public class Main {
         System.out.print("Фамилия: ");
         String lastname = scanner.nextLine().trim();
         System.out.println("Результат " + name + " " + lastname + " = " + service.testing());
+        scanner.close();
     }
 }
