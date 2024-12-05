@@ -3,8 +3,8 @@
        xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
-    <!-- TODO: определите бин класса ru.otus.spring.dao.PersonDaoSimple -->
-    <bean id="personDao" class="ru.otus.spring.dao.PersonDaoSimple">
+    <!-- TODO: определите бин класса ru.otus.spring.dao.PersonDaoImpl -->
+    <bean id="personDao" class="ru.otus.spring.dao.PersonDaoImpl">
     </bean>
 
     <!-- TODO: определите бин класса ru.otus.spring.PersonServiceImpl -->
