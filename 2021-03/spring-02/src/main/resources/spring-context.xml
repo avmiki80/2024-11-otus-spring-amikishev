@@ -7,7 +7,7 @@
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <bean id="personDao" class="ru.otus.spring.dao.PersonDaoImpl">
+    <bean id="personDao" class="ru.otus.spring.dao.PersonDaoSimple">
     </bean>
 
 </beans>
