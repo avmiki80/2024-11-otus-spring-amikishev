@@ -1,5 +1,6 @@
 package ru.otus.spring.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,9 @@ class ExaminatorServiceImplTest {
 
     @Test
     public void someTest(){
-        assertDoesNotThrow(() -> this.examinatorService.testing());
+        assertAll(
+                () -> assertDoesNotThrow(() -> this.examinatorService.testing()),
+                () -> assertThat(this.examinatorService.testing()).isEqualTo(0L)
+        );
     }
 }
