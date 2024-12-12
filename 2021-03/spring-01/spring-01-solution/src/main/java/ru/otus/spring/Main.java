@@ -11,6 +11,8 @@ public class Main {
                 new ClassPathXmlApplicationContext("/spring-context.xml");
         PersonService service = context.getBean(PersonService.class);
         Person ivan = service.getByName("Ivan");
+        ivan = service.getByName("Ivan");
+        ivan = service.getByName("Ivan");
         System.out.println("name: " + ivan.getName() + " age: " + ivan.getAge());
 
         // Данная операция, в принципе не нужна.

@@ -4,7 +4,11 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="personDao" class="ru.otus.spring.dao.PersonDaoSimple">
+    <bean id="cacheDao" class="ru.otus.spring.cache.PersonCacheDaoImpl">
+    </bean>
+
+    <bean id="personDao" class="ru.otus.spring.dao.PersonDaoImpl">
+        <constructor-arg name="cacheDao" ref="cacheDao"/>
     </bean>
 
     <bean id="personService" class="ru.otus.spring.service.PersonServiceImpl">
