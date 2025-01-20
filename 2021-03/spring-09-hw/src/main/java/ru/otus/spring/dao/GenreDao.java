@@ -8,6 +8,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.otus.spring.domain.Genre;
+import ru.otus.spring.search.GenreSearch;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,7 +19,7 @@ import java.util.Objects;
 
 @Repository
 @RequiredArgsConstructor
-public class GenreDao implements Dao<Genre>{
+public class GenreDao implements Dao<Genre, GenreSearch>{
     private final NamedParameterJdbcOperations jdbc;
     @Override
     public Long insert(Genre obj) {
@@ -50,8 +51,10 @@ public class GenreDao implements Dao<Genre>{
     public Genre findById(long id) {
         return jdbc.queryForObject("select g.id, g.title from genres g where id=:id", Collections.singletonMap("id", id), new GenreMapper());
     }
-    public List<Genre> findByTitle(String title) {
-        return jdbc.query("select g.id, g.title from genres g where title like :title", Collections.singletonMap("title", title + "%"), new GenreMapper());
+    @Override
+    public List<Genre> findByParams(GenreSearch param) {
+        return jdbc.query("select g.id, g.title from genres g where :title = '' or lower(title) like lower(concat(:title, '%'))",
+                Collections.singletonMap("title", Objects.isNull(param.getTitle()) ? "" : param.getTitle()), new GenreMapper());
     }
     private static class GenreMapper implements RowMapper<Genre> {
         @Override

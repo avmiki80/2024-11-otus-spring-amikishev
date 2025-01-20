@@ -2,18 +2,21 @@ package ru.otus.spring.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.dao.AuthorDao;
+import ru.otus.spring.dao.Dao;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.exception.ServiceException;
+import ru.otus.spring.search.AuthorSearch;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class AuthorService implements CrudService<Author>{
-    private final AuthorDao authorDao;
+public class AuthorService implements CrudService<Author, AuthorSearch>{
+    private final Dao<Author, AuthorSearch> authorDao;
     @Override
     public Long insert(Author obj) {
         return authorDao.insert(obj);
@@ -46,16 +49,21 @@ public class AuthorService implements CrudService<Author>{
             throw new ServiceException(e.getMessage());
         }
     }
-
-    public List<Author> getByFirstnameAndLastname(String firstname, String lastname) {
-        return authorDao.getByFirstnameAndLastname(firstname, lastname);
+    @Override
+    public List<Author> findByParams(AuthorSearch params) {
+        return authorDao.findByParams(params);
     }
-    public Author findOrCreateAuthor(String firstname, String lastname) {
-        Optional<Author> authorOptional = getByFirstnameAndLastname(firstname, lastname).stream().findAny();
+
+    @Override
+    @Transactional
+    public Author findAndCreateIfAbsent(AuthorSearch params) {
+        Optional<Author> authorOptional = findByParams(
+                params
+        ).stream().findAny();
         if(authorOptional.isPresent()){
             return authorOptional.get();
         } else {
-            Author author = new Author(null, firstname, lastname);
+            Author author = new Author(null, params.getFirstname(), params.getLastname());
             author.setId(insert(author));
             return author;
         }

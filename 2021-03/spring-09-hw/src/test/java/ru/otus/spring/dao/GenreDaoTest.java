@@ -11,6 +11,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.otus.spring.ConfigTest;
 import ru.otus.spring.data.GenreDataBuilder;
 import ru.otus.spring.domain.Genre;
+import ru.otus.spring.search.GenreSearch;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ class GenreDaoTest {
     private static final String EXISTING_GENRE_TITLE = "Фантастика";
 //    private static final long SAVED_EXPECTED_GENRE_ID = 3L;
     @Autowired
-    private Dao<Genre> genreDao;
+    private Dao<Genre, GenreSearch> genreDao;
 
     @DisplayName("Проверка поднятия контекста")
     @Test

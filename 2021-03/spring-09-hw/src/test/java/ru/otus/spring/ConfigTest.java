@@ -21,7 +21,7 @@ public class ConfigTest {
     }
 
     @Bean
-    public GenreService genreCrudService(){
+    public GenreService genreService(){
         return new GenreService(genreDao());
     }
     @Bean
@@ -29,7 +29,7 @@ public class ConfigTest {
         return new AuthorDao(jdbc);
     }
     @Bean
-    public AuthorService authorCrudService(){
+    public AuthorService authorService(){
         return new AuthorService(authorDao());
     }
     @Bean
@@ -37,7 +37,7 @@ public class ConfigTest {
         return new BookDao(jdbc);
     }
     @Bean
-    public BookService bookCrudService(){
-        return new BookService(bookDao(), genreCrudService(), authorCrudService());
+    public BookService bookService(){
+        return new BookService(bookDao(), genreService(), authorService());
     }
 }

@@ -11,6 +11,7 @@ import ru.otus.spring.ConfigTest;
 import ru.otus.spring.data.AuthorDataBuilder;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.exception.ServiceException;
+import ru.otus.spring.search.AuthorSearch;
 
 import java.util.List;
 
@@ -30,7 +31,7 @@ class AuthorServiceTest {
     private static final String EXISTING_AUTHOR_FIRSTNAME = "Александр";
 //    private static final long SAVED_EXPECTED_AUTHOR_ID = 3L;
     @Autowired
-    private AuthorService authorService;
+    private CrudService<Author, AuthorSearch> authorService;
 
     @DisplayName("Проверка поднятия контекста")
     @Test
@@ -54,8 +55,18 @@ class AuthorServiceTest {
     public void whenFindByLastnameAndFirstname_thenShouldReturnFilteredAuthors(){
         Author expectedAuthor = AuthorDataBuilder.author().withId(EXISTING_AUTHOR_ID).withFirstname(EXISTING_AUTHOR_FIRSTNAME).withLastname(EXISTING_AUTHOR_LASTNAME).build();
         assertAll(
-                () -> assertDoesNotThrow(() -> authorService.getByFirstnameAndLastname(EXISTING_AUTHOR_FIRSTNAME, EXISTING_AUTHOR_LASTNAME)),
-                () -> assertThat(authorService.getByFirstnameAndLastname(EXISTING_AUTHOR_FIRSTNAME, EXISTING_AUTHOR_LASTNAME)).usingFieldByFieldElementComparator()
+                () -> assertDoesNotThrow(() -> authorService.findByParams(
+                        AuthorSearch.builder()
+                                .firstname(EXISTING_AUTHOR_FIRSTNAME)
+                                .lastname(EXISTING_AUTHOR_LASTNAME)
+                                .build())
+                ),
+                () -> assertThat(authorService.findByParams(
+                        AuthorSearch.builder()
+                                .firstname(EXISTING_AUTHOR_FIRSTNAME)
+                                .lastname(EXISTING_AUTHOR_LASTNAME)
+                                .build())
+                ).usingFieldByFieldElementComparator()
                         .contains(expectedAuthor)
         );
     }

@@ -13,6 +13,7 @@ import ru.otus.spring.data.BookDataBuilder;
 import ru.otus.spring.data.GenreDataBuilder;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.exception.ServiceException;
+import ru.otus.spring.search.BookSearch;
 
 import java.util.List;
 
@@ -28,7 +29,7 @@ class BookServiceTest {
     private static final long EXISTING_BOOK_ID = 1L;
 //    private static final long SAVED_EXPECTED_BOOK_ID = 3L;
     @Autowired
-    private BookService bookService;
+    private CrudService<Book, BookSearch> bookService;
     @DisplayName("Проверка поднятия контекста")
     @Test
     public void checkContext(){
@@ -41,6 +42,18 @@ class BookServiceTest {
         List<Book> books = bookService.findAll();
         assertAll(
                 () -> assertThat(books.size()).isEqualTo(EXPECTED_BOOKS_COUNT),
+                () -> assertThat(books).usingFieldByFieldElementComparator()
+                        .contains(expectedBook)
+        );
+    }
+
+    @DisplayName("Получение книг по параметрам")
+    @Test
+    public void shouldReturnFilteredBooks(){
+        Book expectedBook = BookDataBuilder.book().build();
+        List<Book> books = bookService.findByParams(BookSearch.builder().firstname("аЛ").build());
+        assertAll(
+                () -> assertThat(books.size()).isEqualTo(1),
                 () -> assertThat(books).usingFieldByFieldElementComparator()
                         .contains(expectedBook)
         );

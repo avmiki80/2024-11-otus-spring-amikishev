@@ -3,7 +3,6 @@ package ru.otus.spring.domain;
 import lombok.*;
 
 @Data
-@EqualsAndHashCode(exclude = {"id"})
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

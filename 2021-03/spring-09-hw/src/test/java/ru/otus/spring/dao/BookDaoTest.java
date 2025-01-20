@@ -11,6 +11,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.otus.spring.ConfigTest;
 import ru.otus.spring.data.BookDataBuilder;
 import ru.otus.spring.domain.Book;
+import ru.otus.spring.search.BookSearch;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ class BookDaoTest {
     private static final String EXISTING_BOOK_TITLE = "Test1";
 //    private static final long SAVED_EXPECTED_BOOK_ID = 3L;
     @Autowired
-    private Dao<Book> bookDao;
+    private Dao<Book, BookSearch> bookDao;
 
     @DisplayName("Проверка поднятия контекста")
     @Test

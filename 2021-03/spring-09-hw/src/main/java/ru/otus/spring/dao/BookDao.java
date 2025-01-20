@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.Genre;
+import ru.otus.spring.search.BookSearch;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,7 +21,7 @@ import java.util.Objects;
 
 @Repository
 @RequiredArgsConstructor
-public class BookDao implements Dao<Book>{
+public class BookDao implements Dao<Book, BookSearch>{
     private final NamedParameterJdbcOperations jdbc;
     @Override
     public Long insert(Book obj) {
@@ -62,6 +63,25 @@ public class BookDao implements Dao<Book>{
                         "left join authors a on b.author_id=a.id " +
                         "where b.id=:id", Collections.singletonMap("id", id), new BookMapper());
     }
+
+    @Override
+    public List<Book> findByParams(BookSearch params) {
+        return jdbc.query(
+                "select b.id, b.title, b.genre_id, b.author_id, g.title as genre, a.firstname as firstname, a.lastname as lastname from " +
+                        "(books b left join genres g on b.genre_id=g.id) " +
+                        "left join authors a on b.author_id=a.id " +
+                        "where (:title = '' or lower(b.title) like lower(concat(:title, '%'))) and " +
+                        "(:genre = '' or lower(g.title) like lower(concat(:genre, '%'))) and " +
+                        "(:firstname = '' or lower(a.firstname) like lower(concat(:firstname, '%'))) and " +
+                        "(:lastname = '' or lower(a.lastname) like lower(concat(:lastname, '%')))",
+                Map.of(
+                        "title", Objects.isNull(params.getTitle()) ? "" : params.getTitle(),
+                        "genre", Objects.isNull(params.getGenre()) ? "" : params.getGenre(),
+                        "firstname", Objects.isNull(params.getFirstname()) ? "" : params.getFirstname(),
+                        "lastname", Objects.isNull(params.getLastname()) ? "" : params.getLastname()
+                ), new BookMapper());
+    }
+
     private static class BookMapper implements RowMapper<Book> {
         @Override
         public Book mapRow(ResultSet resultSet, int i) throws SQLException {

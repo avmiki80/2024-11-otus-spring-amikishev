@@ -11,6 +11,7 @@ import ru.otus.spring.ConfigTest;
 import ru.otus.spring.data.GenreDataBuilder;
 import ru.otus.spring.domain.Genre;
 import ru.otus.spring.exception.ServiceException;
+import ru.otus.spring.search.GenreSearch;
 
 import java.util.List;
 
@@ -30,7 +31,7 @@ class GenreServiceTest {
     private static final long UNEXISTING_GENRE_ID = 3000L;
 
     @Autowired
-    private GenreService genreService;
+    private CrudService<Genre, GenreSearch> genreService;
     @DisplayName("Проверка поднятия контекста")
     @Test
     public void checkContext(){
@@ -52,8 +53,8 @@ class GenreServiceTest {
     public void whenFindByTitle_shouldReturnFilteredGenres(){
         Genre expectedGenre = GenreDataBuilder.genre().withId(EXISTING_GENRE_ID).withTitle(EXISTING_GENRE_TITLE).build();
         assertAll(
-                () -> assertDoesNotThrow(() -> genreService.findByTitle(EXISTING_GENRE_TITLE)),
-                () -> assertThat(genreService.findByTitle(EXISTING_GENRE_TITLE)).usingFieldByFieldElementComparator()
+                () -> assertDoesNotThrow(() -> genreService.findByParams(GenreSearch.builder().title(EXISTING_GENRE_TITLE).build())),
+                () -> assertThat(genreService.findByParams(GenreSearch.builder().title(EXISTING_GENRE_TITLE).build())).usingFieldByFieldElementComparator()
                         .contains(expectedGenre)
         );
     }

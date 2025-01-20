@@ -11,6 +11,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.otus.spring.ConfigTest;
 import ru.otus.spring.data.AuthorDataBuilder;
 import ru.otus.spring.domain.Author;
+import ru.otus.spring.search.AuthorSearch;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ class AuthorDaoTest {
     private static final String EXISTING_AUTHOR_FIRSTNAME = "Александр";
 //    private static final long SAVED_EXPECTED_AUTHOR_ID = 3L;
     @Autowired
-    private Dao<Author> authorDao;
+    private Dao<Author, AuthorSearch> authorDao;
 
     @DisplayName("Проверка поднятия контекста")
     @Test

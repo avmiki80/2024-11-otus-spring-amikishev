@@ -8,6 +8,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.otus.spring.domain.Author;
+import ru.otus.spring.search.AuthorSearch;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,7 +19,7 @@ import java.util.Objects;
 
 @Repository
 @RequiredArgsConstructor
-public class AuthorDao implements Dao<Author>{
+public class AuthorDao implements Dao<Author, AuthorSearch>{
     private final NamedParameterJdbcOperations jdbc;
     @Override
     public Long insert(Author obj) {
@@ -52,9 +53,15 @@ public class AuthorDao implements Dao<Author>{
     public Author findById(long id) {
         return jdbc.queryForObject("select a.id, a.firstname, a.lastname from authors a where id=:id", Collections.singletonMap("id", id), new AuthorMapper());
     }
-    public List<Author> getByFirstnameAndLastname(String firstname, String lastname) {
-        return jdbc.query("select a.id, a.firstname, a.lastname from authors a where firstname like :firstname and lastname like :lastname",
-                Map.of("firstname", firstname + "%", "lastname", lastname + "%"),
+
+    @Override
+    public List<Author> findByParams(AuthorSearch params) {
+        return jdbc.query("select a.id, a.firstname, a.lastname from authors a where " +
+                        "(:firstname = '' or lower(firstname) like lower(concat(:firstname, '%'))) and " +
+                        "(:lastname = '' or lower(lastname) like lower(concat(:lastname, '%')))",
+                Map.of(
+                        "firstname", Objects.isNull(params.getFirstname()) ? "" : params.getFirstname(),
+                        "lastname", Objects.isNull(params.getLastname()) ? "" : params.getLastname()),
                 new AuthorMapper());
     }
     private static class AuthorMapper implements RowMapper<Author> {
