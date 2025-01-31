@@ -6,14 +6,17 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.otus.spring.hw11.dto.BookDto;
 import ru.otus.spring.hw11.dto.CommentDto;
+import ru.otus.spring.hw11.search.BookSearch;
+import ru.otus.spring.hw11.search.CommentSearch;
 import ru.otus.spring.hw11.service.BookService;
 import ru.otus.spring.hw11.service.CommentService;
+import ru.otus.spring.hw11.service.CrudService;
 
 @ShellComponent
 @RequiredArgsConstructor
 public class CustomShell {
-    private final BookService bookService;
-    private final CommentService commentService;
+    private final CrudService<BookDto, BookSearch> bookService;
+    private final CrudService<CommentDto, CommentSearch> commentService;
 
     @ShellMethod(value = "Add book", key = {"ab"})
     public void saveBook(
