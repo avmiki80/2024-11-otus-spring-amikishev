@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: spring-17-hw
+  datasource:
+    url: jdbc:h2:mem:testdb
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+
+  h2:
+    console:
+      path: /h2-console
+  #      settings:
+  #        web-allow-others: true
+  liquibase:
+    enabled: true
+    change-log: classpath*:db/changelog/rootChangeLog.xml
+  sql:
+    init:
+      mode: never
+jwt:
+  secret: top-secret
+
+
