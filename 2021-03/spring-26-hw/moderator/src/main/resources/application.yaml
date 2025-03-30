@@ -1,0 +1,11 @@
+server:
+  port: ${SERVICE_PORT:8080}
+spring:
+  application:
+    name: moderator-service
+  profiles:
+    include:
+      - db
+      - kafka
+      - metric
+      - log
