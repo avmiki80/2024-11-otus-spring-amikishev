@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  book-service:
+    build:
+      context: .
+      dockerfile: book-service/Dockerfile
+    container_name: book-service
+    environment:
+      - SERVICE_PORT=8080
+      - MODERATOR_SERVICE_URL=http://moderator-service:8080/moderator
+      - LOGGING_ROOT_LEVEL=INFO
+      - LOGGING_LEVEL=INFO
+    ports:
+      - "8080:8080"
+    networks:
+      - monitoring1
+
+  moderator-service:
+    build:
+      context: .
+      dockerfile: moderator-service/Dockerfile
+    container_name: moderator-service
+    environment:
+      - SERVICE_PORT=8080
+      - LOGGING_ROOT_LEVEL=INFO
+      - LOGGING_LEVEL=INFO
+    ports:
+      - "8081:8080"
+    networks:
+      - monitoring1
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - monitoring1
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "7000:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - grafana-storage:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_DISABLE_INITIAL_ADMIN_PASSWORD_HINT=true
+    networks:
+      - monitoring1
+
+volumes:
+  grafana-storage:
+
+networks:
+  monitoring1:
+    driver: bridge
