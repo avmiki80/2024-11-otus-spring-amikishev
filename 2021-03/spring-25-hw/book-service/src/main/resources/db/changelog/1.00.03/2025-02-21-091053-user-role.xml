@@ -1,0 +1,36 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.6.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+    <changeSet author="avmiki80" id="2025-02-21T09:01:40.534769" objectQuotingStrategy="LEGACY">
+        <preConditions onError="HALT" onFail="MARK_RAN" onSqlOutput="IGNORE">
+            <not>
+                <tableExists tableName="users_roles"/>
+            </not>
+        </preConditions>
+        <createTable remarks="Связь пользователей и их ролей" tableName="users_roles">
+            <column name="user_id" remarks="Внешний ключ пользователь" type="bigint" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="role_id" remarks="Внешний ключ роль" type="bigint" >
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+        <addPrimaryKey columnNames="user_id, role_id" constraintName="pk_users_roles" tableName="users_roles"/>
+        <addForeignKeyConstraint
+                baseColumnNames="user_id"
+                baseTableName="users_roles"
+                constraintName="fk_users"
+                onDelete="CASCADE"
+                referencedColumnNames="id"
+                referencedTableName="users"
+        />
+        <addForeignKeyConstraint
+                baseColumnNames="role_id"
+                baseTableName="users_roles"
+                constraintName="fk_roles"
+                onDelete="CASCADE"
+                referencedColumnNames="id"
+                referencedTableName="roles"
+        />
+    </changeSet>
+</databaseChangeLog>
