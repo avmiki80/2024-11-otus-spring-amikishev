@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 15s  # Частота сбора метрик
+
+scrape_configs:
+  - job_name: 'hw24'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['hw24:8080']
+#      - targets: ['host.docker.internal:8080'] для приложения запущенного локально
