@@ -1,0 +1,15 @@
+logging:
+  file:
+    name: ./logs/application.log
+  level:
+    root: ${LOGGING_ROOT_LEVEL:INFO}
+    ru.otus.spring.book: ${LOGGING_LEVEL:INFO}
+    kafka: ${LOGGING_KAFKA_LEVEL:INFO}
+    org.apache.kafka.clients: ${LOGGING_KAFKA_LEVEL:INFO}
+    org.springframework.kafka.listener: ${LOGGING_KAFKA_LEVEL:INFO}
+    org.springframework.cloud.stream: ${LOGGING_KAFKA_LEVEL:INFO}
+    org.apache.kafka.clients.consumer.internals.ConsumerCoordinator: ${LOGGING_KAFKA_CC_LEVEL:WARN}
+    org.springframework.kafka: DEBUG
+    org.apache.kafka.clients.consumer.ConsumerConfig: DEBUG
+
+
