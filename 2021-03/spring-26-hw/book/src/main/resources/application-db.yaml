@@ -1,0 +1,33 @@
+spring:
+  datasource:
+#    url: jdbc:h2:mem:testdb
+    driverClassName: org.postgresql.Driver
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/library}
+    username: ${DB_LOGIN:postgres}
+    password: ${DB_PASSWORD:postgres}
+    hikari:
+      maximum-pool-size: ${HIKARI_MAXIMUM_POOLSIZE:10}
+      minimumIdle: ${HIKARI_MINIMUM_IDLE:1}
+      idleTimeout: ${HIKARI_IDLE_TIMEOUT:600000}
+      connectionTimeout: ${HIKARI_CONNECTION_TIMEOUT:30000}
+      maxLifetime: ${HIKARI_MAX_LIFETIME:1800000}
+      keepaliveTime: ${HIKARI_KEEPALIVE_TIME:180000}
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL95Dialect
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: ${BATCH_SIZE:200}
+        order_updates: true
+        order_inserts: true
+
+  liquibase:
+    enabled: true
+    change-log: classpath*:db/changelog/rootChangeLog.xml
+  sql:
+    init:
+      mode: never

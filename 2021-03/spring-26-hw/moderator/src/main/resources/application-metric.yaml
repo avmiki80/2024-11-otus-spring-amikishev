@@ -1,0 +1,21 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+        step: 1m
+
+  endpoint:
+    prometheus:
+      enabled: true
+    logfile:
+      enabled: true
+      external-file: ./logs/application.log
+    metrics:
+      enabled: true
+    health:
+      show-details: always

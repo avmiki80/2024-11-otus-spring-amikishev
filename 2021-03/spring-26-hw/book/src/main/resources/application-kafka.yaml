@@ -1,0 +1,55 @@
+moderate:
+  from:
+    kafka:
+      enabled: true
+consumer:
+  group: ${GRPOUP:book-service}
+
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_URL:localhost:29092}
+    admin:
+      properties:
+        request.timeout.ms: ${KAFKA_REQUEST_TIMEOUT:5000}
+    consumer:
+      properties:
+        session:
+          timeout:
+            ms: 30000
+        heartbeat:
+          interval:
+            ms: 10000
+        max:
+          poll:
+            records: ${KAFKA_CONSUMER_MAX_POLL_RECORDS:50}
+            interval:
+              ms: ${KAFKA_CONSUMER_MAX_POLL_INTERVAL_MS:300000}
+      enable-auto-commit: false
+      auto-offset-reset: latest
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+  cloud:
+    stream:
+      binders:
+        binderName:
+          type: kafka
+      kafka:
+        binder:
+          replicationFactor: ${KAFKA_REPLICATION_FACTOR:-1}
+          minPartitionCount: ${MIN_PARTITION_COUNT:3}
+          requiredAcks: ${REQUIRED_ACKS:all}
+          producerProperties:
+            enable.idempotence: ${KAFKA_PRODUCER_ENABLE_IDEMPOTENCE:true}
+          consumerProperties:
+            maxAttempts: ${KAFKA_CONSUMER_MAX_ATTEMPTS:3}
+            backOffInitialInterval: ${KAFKA_CONSUMER_BACK_OFF_INITIAL_INTERVAL:1000}
+            backOffMaxInterval: ${KAFKA_CONSUMER_BACK_OFF_MAX_INTERVAL:10000}
+            backOffMultiplier: ${KAFKA_CONSUMER_BACK_OFF_MULTIPLIER:2}
+
+#logging:
+#  level:
+#    kafka: ${LOGGING_KAFKA_LEVEL:INFO}
+#    org.apache.kafka.clients: ${LOGGING_KAFKA_LEVEL:INFO}
+#    org.springframework.kafka.listener: ${LOGGING_KAFKA_LEVEL:INFO}
+#    org.apache.kafka.clients.consumer.internals.ConsumerCoordinator: ${LOGGING_KAFKA_CC_LEVEL:WARN}

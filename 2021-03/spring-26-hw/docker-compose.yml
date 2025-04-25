@@ -1,0 +1,143 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: library
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - monitoring1
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 22181:2181
+    networks:
+      - monitoring1
+    restart: unless-stopped
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - 29092:29092
+      - 7071:7071  # JMX Exporter port
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_OPTS: "-javaagent:/usr/app/jmx_prometheus_javaagent-0.20.0.jar=7071:/etc/jmx-exporter/kafka-jmx-exporter.yml"
+    volumes:
+      - ./jmx_exporter/jmx_prometheus_javaagent-0.20.0.jar:/usr/app/jmx_prometheus_javaagent-0.20.0.jar
+      - ./jmx_exporter/kafka-jmx-exporter.yml:/etc/jmx-exporter/kafka-jmx-exporter.yml
+    networks:
+      - monitoring1
+    restart: unless-stopped
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    ports:
+      - 8082:8080
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER_CONNECT: zookeeper:2181
+    depends_on:
+      - kafka
+    networks:
+      - monitoring1
+
+  moderator-service:
+    build:
+      context: .
+      dockerfile: moderator/Dockerfile
+    container_name: moderator-service
+    environment:
+      - SERVICE_PORT=8080
+      - KAFKA_URL=kafka:29092
+      - LOGGING_ROOT_LEVEL=INFO
+      - LOGGING_LEVEL=INFO
+    ports:
+      - "8081:8080"
+    networks:
+      - monitoring1
+
+  book-service:
+    build:
+      context: .
+      dockerfile: book/Dockerfile
+    container_name: book-service
+    environment:
+      - SERVICE_PORT=8080
+      - DB_URL=jdbc:postgresql://postgres:5432/library
+      - DB_LOGIN=postgres
+      - DB_PASSWORD=postgres
+      - KAFKA_URL=kafka:29092
+      - MODERATOR_SERVICE_URL=http://moderator-service:8080/moderator
+      - LOGGING_ROOT_LEVEL=INFO
+      - LOGGING_LEVEL=INFO
+    ports:
+      - "8080:8080"
+    networks:
+      - monitoring1
+    depends_on:
+      - moderator-service
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./jmx_exporter/kafka-jmx-exporter.yml:/etc/jmx/kafka-jmx-exporter.yml
+    networks:
+      - monitoring1
+    depends_on:
+      - book-service
+      - moderator-service
+      - kafka
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "7000:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - grafana-storage:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_DISABLE_INITIAL_ADMIN_PASSWORD_HINT: "true"
+    networks:
+      - monitoring1
+    depends_on:
+      - prometheus
+
+volumes:
+  grafana-storage:
+  postgres_data:
+
+networks:
+  monitoring1:
+    driver: bridge
