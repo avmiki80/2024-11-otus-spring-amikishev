@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.otus.spring.h26.model.tomoderate.Comment;
 import ru.otus.spring.hw26.moderator.dto.CheckedCommentDto;
 import ru.otus.spring.hw26.moderator.dto.ModerateDto;
+import ru.otus.spring.hw26.moderator.exception.ServiceException;
 import ru.otus.spring.hw26.moderator.search.ModerateSearch;
 
 @Service
@@ -17,7 +18,8 @@ public class ModeratorServiceImpl implements ModeratorService{
     private static final Integer THRESHOLD = 90;
     @Override
     public CheckedCommentDto moderate(Comment comment) {
-        log.debug(comment.getCommentText());
+        log.info(comment.getCommentText());
+//        throw new ServiceException("some error");
         if(RandomUtils.nextInt(0, 100) < THRESHOLD){
             return CheckedCommentDto.builder().commentStatus(true).build();
         } else {

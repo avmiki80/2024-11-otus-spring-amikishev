@@ -7,6 +7,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import ru.otus.spring.hw26.book.config.CustomAccessDeniedHandler;
 import ru.otus.spring.hw26.book.exception.ServiceException;
 
 @ControllerAdvice

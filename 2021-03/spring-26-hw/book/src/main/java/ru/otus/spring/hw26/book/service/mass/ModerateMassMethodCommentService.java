@@ -9,7 +9,6 @@ import ru.otus.spring.hw26.book.service.CrudService;
 import ru.otus.spring.hw26.book.service.ModeratorService;
 
 import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class ModerateMassMethodCommentService implements MassMethodService<CommentDto> {
@@ -19,18 +18,6 @@ public class ModerateMassMethodCommentService implements MassMethodService<Comme
     @Override
     public List<CommentDto> massCreate(List<CommentDto> objs) {
         List<CommentDto> result = massMethodComment.massCreate(objs);
-        return sendCommentToModerate(result);
-    }
-
-    @Override
-    public List<CommentDto> massCreate1(List<CommentDto> objs) {
-        List<CommentDto> result = massMethodComment.massCreate1(objs);
-        return sendCommentToModerate(result);
-    }
-
-    @Override
-    public List<CommentDto> massCreate2(List<CommentDto> objs)  {
-        List<CommentDto> result = massMethodComment.massCreate2(objs);
         return sendCommentToModerate(result);
     }
 

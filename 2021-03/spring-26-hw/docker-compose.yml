@@ -1,6 +1,22 @@
 version: '3.8'
 
 services:
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mem # Используем in-memory хранилище (для продакшена выберите другой вариант)
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://zipkin:9411/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - monitoring1
+
   postgres:
     image: postgres:14
     container_name: postgres
@@ -15,6 +31,49 @@ services:
     restart: unless-stopped
     networks:
       - monitoring1
+
+  postgres-kc:
+    image: postgres:14
+    container_name: postgres-kc
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "15432:5432"
+    volumes:
+      - postgres_data_kc:/var/lib/postgresql/data
+    networks:
+      - monitoring1
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U keycloak -d keycloak" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    depends_on:
+      postgres-kc:
+        condition: service_healthy
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres-kc:5432/keycloak
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_PROXY: edge
+#      KC_HOSTNAME: localhost
+    command: ["start-dev", "--import-realm"]
+    volumes:
+      - ./keycloak/realm_export.json:/opt/keycloak/data/import/realm.json
+    ports:
+      - "9000:8080"
+    networks:
+      - monitoring1
+
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -66,6 +125,78 @@ services:
     networks:
       - monitoring1
 
+  configuration-service:
+    build:
+      context: .
+      dockerfile: configuration/Dockerfile
+    container_name: configuration-service
+    environment:
+      - SERVICE_PORT=8888
+      - GIT_URI=https://github.com/avmiki80/otus-config/
+    ports:
+      - "8888:8888"
+    networks:
+      - monitoring1
+
+  eureka-service1:
+    build:
+      context: .
+      dockerfile: eureka/Dockerfile
+    container_name: eureka-service1
+    environment:
+      - SERVICE_PORT=8761
+      - SPRING_PROFILES_ACTIVE=node1
+      - EUREKA_URL=http://eureka-service2:8761/eureka, http://eureka-service1:8761/eureka
+      - CONFIG_IMPORT=configserver:http://configuration-service:8888
+    ports:
+      - "8761:8761"
+    networks:
+      - monitoring1
+    depends_on:
+      - configuration-service
+
+  eureka-service2:
+    build:
+      context: .
+      dockerfile: eureka/Dockerfile
+    container_name: eureka-service2
+    environment:
+      - SERVICE_PORT=8761
+      - SPRING_PROFILES_ACTIVE=node2
+      - EUREKA_URL=http://eureka-service1:8761/eureka, http://eureka-service2:8761/eureka
+      - CONFIG_IMPORT=configserver:http://configuration-service:8888
+    ports:
+      - "8762:8761"
+    networks:
+      - monitoring1
+    depends_on:
+      - configuration-service
+
+  gateway-service:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    container_name: gateway-service
+    environment:
+      - SERVICE_PORT=8080
+      - EUREKA_URL=http://eureka-service1:8761/eureka
+      - CONFIG_IMPORT=configserver:http://configuration-service:8888
+      - AUTH_HOST=keycloak
+      - AUTH_PORT=8080
+      - CONFIG_HOST=configuration-service
+      - CONFIG_PORT=8888
+      - ISSUER_URI=http://keycloak:8080/realms/library
+      - JWK_URI=http://keycloak:8080/realms/library/protocol/openid-connect/certs
+      - TRACE_URL=http://zipkin:9411
+    ports:
+      - "8080:8080"
+    networks:
+      - monitoring1
+    depends_on:
+      - configuration-service
+      - eureka-service1
+      - keycloak
+
   moderator-service:
     build:
       context: .
@@ -74,12 +205,19 @@ services:
     environment:
       - SERVICE_PORT=8080
       - KAFKA_URL=kafka:29092
+      - EUREKA_URL=http://eureka-service1:8761/eureka
       - LOGGING_ROOT_LEVEL=INFO
       - LOGGING_LEVEL=INFO
-    ports:
-      - "8081:8080"
+      - CONFIG_IMPORT=configserver:http://configuration-service:8888
+      - TRACE_URL=http://zipkin:9411
+#    ports:
+#      - "8091:8080"
     networks:
       - monitoring1
+    depends_on:
+      - configuration-service
+      - eureka-service1
+      - gateway-service
 
   book-service:
     build:
@@ -93,14 +231,21 @@ services:
       - DB_PASSWORD=postgres
       - KAFKA_URL=kafka:29092
       - MODERATOR_SERVICE_URL=http://moderator-service:8080/moderator
+      - EUREKA_URL=http://eureka-service2:8761/eureka
       - LOGGING_ROOT_LEVEL=INFO
       - LOGGING_LEVEL=INFO
-    ports:
-      - "8080:8080"
+      - CONFIG_IMPORT=configserver:http://configuration-service:8888
+      - JWK_URI=http://keycloak:8080/realms/library/protocol/openid-connect/certs
+      - TRACE_URL=http://zipkin:9411
+#    ports:
+#      - "8101:8080"
     networks:
       - monitoring1
     depends_on:
       - moderator-service
+      - configuration-service
+      - eureka-service1
+      - gateway-service
 
   prometheus:
     image: prom/prometheus
@@ -137,6 +282,7 @@ services:
 volumes:
   grafana-storage:
   postgres_data:
+  postgres_data_kc:
 
 networks:
   monitoring1:
