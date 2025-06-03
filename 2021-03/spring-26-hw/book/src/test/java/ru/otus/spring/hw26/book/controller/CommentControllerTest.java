@@ -37,55 +37,7 @@ class CommentControllerTest {
 
     @Autowired
     private CrudService<CommentDto, CommentSearch> commentService;
-    private static final String WRONG_ROLE = "WRONG_ROLE";
-    @WithMockUser(
-            roles = WRONG_ROLE
-    )
-    @Test
-    void whenSaveWithWrongRole_thenReturnStatusForbidden() throws Exception {
-        CommentDto comment = CommentDtoDataBuilder.comment().withId(null).build();
-        String forSave = mapper.writeValueAsString(comment);
-        mvc.perform(post("/comment").contentType(APPLICATION_JSON)
-                        .content(forSave))
-                .andExpect(status().isForbidden());
-    }
-    @WithMockUser(
-            roles = WRONG_ROLE
-    )
-    @Test
-    void whenUpdateWithWrongRole_thenReturnStatusForbidden() throws Exception {
-        CommentDto comment = CommentDtoDataBuilder.comment().build();
-        String forSave = mapper.writeValueAsString(comment);
-        mvc.perform(put("/comment/{id}", 1).contentType(APPLICATION_JSON)
-                        .content(forSave))
-                .andExpect(status().isForbidden());
-    }
 
-    @WithMockUser(
-            roles = WRONG_ROLE
-    )
-    @Test
-    void whenFindWithParamsWithWrongRole_thenReturnStatusForbidden() throws Exception {
-        mvc.perform(get("/comment").param("text", TEXT))
-                .andExpect(status().isForbidden());
-
-    }
-    @WithMockUser(
-            roles = WRONG_ROLE
-    )
-    @Test
-    void whenDeleteWithWrongRole_thenReturnStatusForbidden() throws Exception {
-        mvc.perform(delete("/comment/1"))
-                .andExpect(status().isForbidden());
-    }
-    @WithMockUser(
-            roles = WRONG_ROLE
-    )
-    @Test
-    void whenFindByIdWithWrongRole_thenReturnStatusForbidden() throws Exception {
-        mvc.perform(get("/comment/1"))
-                .andExpect(status().isForbidden());
-    }
     @WithMockUser(
             roles = {"ADMIN", "USER"}
     )

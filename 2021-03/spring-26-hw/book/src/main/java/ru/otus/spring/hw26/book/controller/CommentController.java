@@ -18,7 +18,7 @@ public class CommentController {
     private final MassMethodService<CommentDto> moderateMassMethodCommentService;
     @PostMapping("/comments")
     public ResponseEntity<List<CommentDto>> massSave(@RequestBody List<CommentDto> comments){
-        return ResponseEntity.ok(moderateMassMethodCommentService.massCreate1(comments));
+        return ResponseEntity.ok(moderateMassMethodCommentService.massCreate(comments));
     }
     @PutMapping("/comments")
     public ResponseEntity<List<CommentDto>> massUpdate(@RequestBody List<CommentDto> comments){
@@ -29,12 +29,6 @@ public class CommentController {
         moderateMassMethodCommentService.massDelete(ids);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
-    //    @PostMapping("/comments")
-//    public CompletableFuture<ResponseEntity<List<Comment>>> massSave(@RequestBody List<Comment> comments){
-//        return massCreateComment.massCreate5(comments)
-//                .thenApply(ResponseEntity::ok);
-//    }
 
     @PostMapping("/comment")
     public ResponseEntity<CommentDto> save(@RequestBody CommentDto commentDto){

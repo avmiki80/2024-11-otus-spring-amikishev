@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "moderate.from.kafka.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "moderate", havingValue = "kafka")
 public class ModeratorServiceKafka implements ModeratorService{
     private final ModeratorGateway moderatorGateway;
     @Override

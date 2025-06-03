@@ -3,9 +3,14 @@ server:
 spring:
   application:
     name: moderator-service
+  config:
+    import: ${CONFIG_IMPORT:configserver:http://localhost:8888}
   profiles:
     include:
       - db
       - kafka
       - metric
       - log
+      - eureka
+      - trace
+

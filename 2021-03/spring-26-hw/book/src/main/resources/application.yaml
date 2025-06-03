@@ -11,17 +11,18 @@ server:
 spring:
   application:
     name: book-service
+  config:
+    import: ${CONFIG_IMPORT:configserver:http://localhost:8888}
   profiles:
     include:
       - db
       - kafka
       - metric
       - log
-
-jwt:
-  secret: top-secret
-
-moderator-url: ${MODERATOR_SERVICE_URL:http://localhost:8081/moderator}
-
+      - eureka
+      - moderate
+      - security
+      - feign
+      - trace
 
 

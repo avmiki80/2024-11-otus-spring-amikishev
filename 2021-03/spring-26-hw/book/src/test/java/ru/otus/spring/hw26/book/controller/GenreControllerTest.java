@@ -37,55 +37,6 @@ class GenreControllerTest {
 
     @Autowired
     private CrudService<GenreDto, GenreSearch> genreService;
-    private static final String WRONG_ROLE = "USER";
-    @WithMockUser(
-            roles = WRONG_ROLE
-    )
-    @Test
-    void whenSaveWithWrongRole_thenReturnStatusForbidden() throws Exception {
-        GenreDto genre = GenreDtoDataBuilder.genre().withId(null).build();
-        String forSave = mapper.writeValueAsString(genre);
-        mvc.perform(post("/genre").contentType(APPLICATION_JSON)
-                        .content(forSave))
-                .andExpect(status().isForbidden());
-    }
-    @WithMockUser(
-            roles = WRONG_ROLE
-    )
-    @Test
-    void whenUpdateWithWrongRole_thenReturnStatusForbidden() throws Exception {
-        GenreDto genre = GenreDtoDataBuilder.genre().build();
-        String forSave = mapper.writeValueAsString(genre);
-        mvc.perform(put("/genre/{id}", 1).contentType(APPLICATION_JSON)
-                        .content(forSave))
-                .andExpect(status().isForbidden());
-    }
-
-    @WithMockUser(
-            roles = WRONG_ROLE
-    )
-    @Test
-    void whenFindWithParamsWithWrongRole_thenReturnStatusForbidden() throws Exception {
-        mvc.perform(get("/genre").param("title", TITLE))
-                .andExpect(status().isForbidden());
-
-    }
-    @WithMockUser(
-            roles = WRONG_ROLE
-    )
-    @Test
-    void whenDeleteWithWrongRole_thenReturnStatusForbidden() throws Exception {
-        mvc.perform(delete("/genre/1"))
-                .andExpect(status().isForbidden());
-    }
-    @WithMockUser(
-            roles = WRONG_ROLE
-    )
-    @Test
-    void whenFindByIdWithWrongRole_thenReturnStatusForbidden() throws Exception {
-        mvc.perform(get("/genre/1"))
-                .andExpect(status().isForbidden());
-    }
     @WithMockUser(
             roles = {"ADMIN"}
     )

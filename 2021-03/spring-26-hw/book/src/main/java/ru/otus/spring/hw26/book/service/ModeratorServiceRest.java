@@ -3,6 +3,7 @@ package ru.otus.spring.hw26.book.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -12,7 +13,8 @@ import ru.otus.spring.hw26.book.exception.ServiceException;
 
 @Service
 @Slf4j
-@ConditionalOnMissingBean(ModeratorServiceKafka.class)
+//@ConditionalOnMissingBean(ModeratorServiceKafka.class)
+@ConditionalOnProperty(name="moderate", matchIfMissing = true, havingValue = "value_that_never_appears")
 public class ModeratorServiceRest implements ModeratorService {
     private final RestTemplate restTemplate;
     private final String url;

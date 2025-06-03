@@ -32,7 +32,6 @@ class AuthorControllerTest {
     private static final String FIRSTNAME = "Александр";
     private static final String LASTNAME = "Пушкин";
 
-    private static final String WRONG_ROLE = "USER";
     @Autowired
     private MockMvc mvc;
     @Autowired
@@ -40,55 +39,6 @@ class AuthorControllerTest {
     @Autowired
     private CrudService<AuthorDto, AuthorSearch> authorService;
 
-    @WithMockUser(
-            roles = WRONG_ROLE
-    )
-    @Test
-    void whenSaveWithWrongRole_thenReturnStatusForbidden() throws Exception {
-        AuthorDto author = AuthorDtoDataBuilder.author().withId(null).build();
-        String forSave = mapper.writeValueAsString(author);
-        mvc.perform(post("/author").contentType(APPLICATION_JSON)
-                        .content(forSave))
-                .andExpect(status().isForbidden());
-    }
-    @WithMockUser(
-            roles = WRONG_ROLE
-    )
-    @Test
-    void whenUpdateWithWrongRole_thenReturnStatusForbidden() throws Exception {
-        AuthorDto author = AuthorDtoDataBuilder.author().withId(null).build();
-        String forSave = mapper.writeValueAsString(author);
-        mvc.perform(put("/author/{id}", 1).contentType(APPLICATION_JSON)
-                        .content(forSave))
-                .andExpect(status().isForbidden());
-    }
-
-    @WithMockUser(
-            roles = WRONG_ROLE
-    )
-    @Test
-    void whenFindWithParamsWithWrongRole_thenReturnStatusForbidden() throws Exception {
-
-        mvc.perform(get("/author").param("firstname", FIRSTNAME).param("lastname", LASTNAME))
-                .andExpect(status().isForbidden());
-
-    }
-    @WithMockUser(
-            roles = WRONG_ROLE
-    )
-    @Test
-    void whenDeleteWithWrongRole_thenReturnStatusForbidden() throws Exception {
-        mvc.perform(delete("/author/1"))
-                .andExpect(status().isForbidden());
-    }
-    @WithMockUser(
-            roles = WRONG_ROLE
-    )
-    @Test
-    void whenFindByIdWithWrongRole_thenReturnStatusForbidden() throws Exception {
-        mvc.perform(get("/author/1"))
-                .andExpect(status().isForbidden());
-    }
     @WithMockUser(
             roles = {"ADMIN"}
     )

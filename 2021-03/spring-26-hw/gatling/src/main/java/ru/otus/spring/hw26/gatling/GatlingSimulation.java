@@ -59,8 +59,8 @@ public class GatlingSimulation extends Simulation {
                 comments.injectOpen(
                         nothingFor(5), // Ничего не делать 5 секунд
                         rampUsers(5).during(10), // Линейно увеличивать до 5 запросов за 10 секунд
-                        constantUsersPerSec(2).during(30), // Поддерживать 2 запросов/сек в течение 30 секунд
-                        rampUsersPerSec(1).to(5).during(20) // Увеличивать с 1 до 5 запросов/сек за 20 секунд
+                        constantUsersPerSec(5).during(30), // Поддерживать 10 запросов/сек в течение 30 секунд
+                        rampUsersPerSec(5).to(20).during(20) // Увеличивать с 1 до 5 запросов/сек за 20 секунд
                 )
         ).protocols(httpProtocol)
                 .maxDuration(Duration.ofMinutes(5));
